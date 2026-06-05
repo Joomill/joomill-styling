@@ -1,7 +1,7 @@
 <?php
 /*
  *  package: System - Joomill Styling plugin
- *  copyright: Copyright (c) 2025. Jeroen Moolenschot | Joomill
+ *  copyright: Copyright (c) 2026. Jeroen Moolenschot | Joomill
  *  license: GNU General Public License version 3 or later
  *  link: https://www.joomill.nl
  */
@@ -11,11 +11,15 @@ namespace Joomill\Plugin\System\Joomill\Extension;
 // No direct access
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Event\Application\AfterRenderEvent;
+use Joomla\CMS\Event\Application\BeforeCompileHeadEvent;
+use Joomla\CMS\Event\Content\ContentPrepareEvent;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Uri\Uri;
+use Joomla\Event\SubscriberInterface;
 
-class Joomill extends CMSPlugin
+class Joomill extends CMSPlugin implements SubscriberInterface
 {
 	protected $app;
 
@@ -24,7 +28,21 @@ class Joomill extends CMSPlugin
 		parent::__construct($subject, $config);
 	}
 
-	public function onBeforeCompileHead()
+	/**
+	 * Returns the events this plugin subscribes to.
+	 *
+	 * @return  array
+	 */
+	public static function getSubscribedEvents(): array
+	{
+		return [
+			'onBeforeCompileHead' => 'onBeforeCompileHead',
+			'onAfterRender'       => 'onAfterRender',
+			'onContentPrepare'    => 'onContentPrepare',
+		];
+	}
+
+	public function onBeforeCompileHead(BeforeCompileHeadEvent $event)
 	{
 		if (!$this->app->isClient('administrator'))
 		{
@@ -42,7 +60,7 @@ class Joomill extends CMSPlugin
 		}
 	}
 
-	function onAfterRender()
+	public function onAfterRender(AfterRenderEvent $event)
 	{
 		// Only for administrator
 		if (!$this->app->isClient('administrator'))
@@ -69,7 +87,7 @@ class Joomill extends CMSPlugin
 		$this->app->setBody($body);
 	}
 
-	public function onContentPrepare()
+	public function onContentPrepare(ContentPrepareEvent $event)
 	{
 		// Only for frontend
 		if (!$this->app->isClient('site'))
