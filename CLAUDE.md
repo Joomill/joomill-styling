@@ -22,7 +22,7 @@ Plugin params (`themecolor`, `homepagetitle`) are defined in `joomill.xml` and r
 
 ## Manifests (two different files — do not confuse)
 
-- `joomill.xml` — the install/update manifest packaged with the extension. **This is the authoritative version number.** Currently `2.0.0`.
+- `joomill.xml` — the install/update manifest packaged with the extension. **This is the authoritative version number.** Currently `2.1.0`.
 - `manifest.xml` — the update-server feed hosted at the GitHub raw URL; Joomla reads it to detect new versions. It lists its own `<version>` + download URL and `<targetplatform>`, and must be bumped (and pushed to `master`) for clients to see an update. Keep its `<version>` in sync with `joomill.xml` on every release (they have drifted before).
 
 ## Releasing / versioning
