@@ -13,7 +13,6 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\Event\Application\AfterRenderEvent;
 use Joomla\CMS\Event\Application\BeforeCompileHeadEvent;
-use Joomla\CMS\Event\Content\ContentPrepareEvent;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Event\SubscriberInterface;
@@ -30,26 +29,57 @@ final class Joomill extends CMSPlugin implements SubscriberInterface
 		return [
 			'onBeforeCompileHead' => 'onBeforeCompileHead',
 			'onAfterRender'       => 'onAfterRender',
-			'onContentPrepare'    => 'onContentPrepare',
 		];
 	}
 
 	public function onBeforeCompileHead(BeforeCompileHeadEvent $event)
 	{
-		if (!$this->getApplication()->isClient('administrator'))
+		$app      = $this->getApplication();
+		$document = $event->getDocument();
+
+		$currentDomain = Uri::getInstance()->toString(array('scheme', 'host'));
+		$isDev         = strpos($currentDomain, 'joomill.dev') !== false;
+
+		// Administrator: load the Joomill admin branding styles.
+		if ($app->isClient('administrator'))
+		{
+			$wa = $document->getWebAssetManager();
+			$wa->registerAndUseStyle('style', 'https://www.joomill.nl/customers/style.css');
+
+			if ($isDev)
+			{
+				$wa->registerAndUseStyle('devstyle', 'https://www.joomill.nl/customers/style-dev.css');
+			}
+
+			return;
+		}
+
+		// Front-end head adjustments only.
+		if (!$app->isClient('site'))
 		{
 			return;
 		}
 
-		$wa = $this->getApplication()->getDocument()->getWebAssetManager();
-		$wa->registerAndUseStyle('style', 'https://www.joomill.nl/customers/style.css');
-
-		$currentURL    = Uri::getInstance();
-		$currentDomain = $currentURL->toString(array('scheme', 'host'));
-		if (strpos($currentDomain, "joomill.dev") !== false)
+		// Block indexing on the dev domain.
+		if ($isDev)
 		{
-			$wa->registerAndUseStyle('devstyle', 'https://www.joomill.nl/customers/style-dev.css');
+			$document->setMetaData('robots', 'noindex, nofollow');
 		}
+
+		// Theme color metadata.
+		$document->setMetaData('theme-color', $this->params->get('themecolor', '#ffffff'));
+
+		// Override the homepage title.
+		$menu = $app->getMenu();
+
+		if ($menu->getActive() == $menu->getDefault($app->getLanguage()->getTag()))
+		{
+			$document->setTitle($this->params->get('homepagetitle') ?: $app->get('sitename'));
+		}
+
+		// Canonical URL.
+		$link = strtok(rtrim(Uri::getInstance()->toString(), '/'), '?');
+		$document->addHeadLink($link, 'canonical');
 	}
 
 	public function onAfterRender(AfterRenderEvent $event)
@@ -77,49 +107,5 @@ final class Joomill extends CMSPlugin implements SubscriberInterface
 
 		$body = str_replace($find, $replace, $body);
 		$this->getApplication()->setBody($body);
-	}
-
-	public function onContentPrepare(ContentPrepareEvent $event)
-	{
-		// Only for frontend
-		if (!$this->getApplication()->isClient('site'))
-		{
-			return;
-		}
-
-		// SET ROBOTS META TAG ON DEV ONLY
-		$currentURL    = Uri::getInstance();
-		$currentDomain = $currentURL->toString(array('scheme', 'host'));
-		if (strpos($currentDomain, "joomill.dev") !== false)
-		{
-			$this->getApplication()->getDocument()->setMetaData('robots','noindex, nofollow');
-		}
-
-		// SET THEME COLOR
-		$themecolor = $this->params->get('themecolor', '#ffffff');
-		$this->getApplication()->getDocument()->setMetaData('theme-color', $themecolor);
-
-		// SET HOMEPAGE PAGETITLE
-		$menu     = $this->getApplication()->getMenu();
-		$language = $this->getApplication()->getLanguage();
-		$siteName = $this->getApplication()->get('sitename');
-
-		if ($menu->getActive() == $menu->getDefault($language->getTag()))
-		{
-			if ($this->params->get('homepagetitle'))
-			{
-				$this->getApplication()->getDocument()->setTitle($this->params->get('homepagetitle'));
-			}
-			else
-			{
-				$this->getApplication()->getDocument()->setTitle($siteName);
-			}
-		}
-
-		// SET CANONICAL URL
-		$link = Uri::getInstance()->toString();
-		$link = rtrim($link, '/');
-		$link = strtok($link, '?');
-		$this->getApplication()->getDocument()->addHeadLink($link, 'canonical');
 	}
 }
