@@ -1,22 +1,28 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <extension type="plugin" group="system" method="upgrade">
-    <name>System - Joomill Styling</name>
-    <description>Styling en Extra Functionaliteiten voor Joomla 4+</description>
+    <name>PLG_SYSTEM_JOOMILL</name>
+    <description>PLG_SYSTEM_JOOMILL_XML_DESCRIPTION</description>
     <author>Jeroen Moolenschot | Joomill</author>
     <authorEmail>info@joomill.nl</authorEmail>
     <authorUrl>https://www.joomill.nl</authorUrl>
     <license>GNU General Public License version 3 or later</license>
     <creationDate>March 2025</creationDate>
-    <copyright>Copyright (c) 2025 Joomill. All rights reserved.</copyright>
+    <copyright>(C) 2026 Joomill</copyright>
     <version>2.0.0</version>
     <namespace path="src">Joomill\Plugin\System\Joomill</namespace>
 
+    <!-- Scripts to run on installation -->
+    <scriptfile>script.php</scriptfile>
+
+    <!-- Files -->
     <files>
         <folder plugin="joomill">services</folder>
+        <folder>language</folder>
         <folder>src</folder>
         <filename>script.php</filename>
     </files>
 
+    <!-- Config -->
     <config>
         <fields name="params">
             <fieldset name="basic">
@@ -24,22 +30,21 @@
                         name="themecolor"
                         type="color"
                         default="#ffffff"
-                        label="Theme Color"
-                        description="Selecteer kleur voor metadata"
+                        label="PLG_SYSTEM_JOOMILL_FIELD_THEMECOLOR_LABEL"
+                        description="PLG_SYSTEM_JOOMILL_FIELD_THEMECOLOR_DESC"
                 />
                 <field
                         name="homepagetitle"
                         type="text"
                         default=""
-                        label="Home Paginatitel"
-                        description="Stel de paginatitel in voor de homepage, wanneer deze leeg is wordt alleen de sitenaam gebruikt."
+                        label="PLG_SYSTEM_JOOMILL_FIELD_HOMEPAGETITLE_LABEL"
+                        description="PLG_SYSTEM_JOOMILL_FIELD_HOMEPAGETITLE_DESC"
                 />
             </fieldset>
         </fields>
     </config>
 
-    <scriptfile>script.php</scriptfile>
-
+    <!-- Update servers -->
     <updateservers>
         <server type="extension" name="Joomill Styling">
             https://raw.githubusercontent.com/Joomill/Joomill_Styling/master/manifest.xml
