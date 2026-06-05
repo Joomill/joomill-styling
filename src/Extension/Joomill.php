@@ -14,20 +14,12 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Event\Application\AfterRenderEvent;
 use Joomla\CMS\Event\Application\BeforeCompileHeadEvent;
 use Joomla\CMS\Event\Content\ContentPrepareEvent;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Event\SubscriberInterface;
 
-class Joomill extends CMSPlugin implements SubscriberInterface
+final class Joomill extends CMSPlugin implements SubscriberInterface
 {
-	protected $app;
-
-	public function __construct(&$subject, array $config = array())
-	{
-		parent::__construct($subject, $config);
-	}
-
 	/**
 	 * Returns the events this plugin subscribes to.
 	 *
@@ -44,12 +36,12 @@ class Joomill extends CMSPlugin implements SubscriberInterface
 
 	public function onBeforeCompileHead(BeforeCompileHeadEvent $event)
 	{
-		if (!$this->app->isClient('administrator'))
+		if (!$this->getApplication()->isClient('administrator'))
 		{
 			return;
 		}
 
-		$wa = $this->app->getDocument()->getWebAssetManager();
+		$wa = $this->getApplication()->getDocument()->getWebAssetManager();
 		$wa->registerAndUseStyle('style', 'https://www.joomill.nl/customers/style.css');
 
 		$currentURL    = Uri::getInstance();
@@ -63,12 +55,12 @@ class Joomill extends CMSPlugin implements SubscriberInterface
 	public function onAfterRender(AfterRenderEvent $event)
 	{
 		// Only for administrator
-		if (!$this->app->isClient('administrator'))
+		if (!$this->getApplication()->isClient('administrator'))
 		{
 			return;
 		}
 
-		$body   = Factory::getApplication()->getBody();
+		$body   = $this->getApplication()->getBody();
 		$find[] = Uri::getInstance()->root() . 'media/templates/administrator/atum/images/logos/login.svg';
 		$find[] = Uri::getInstance()->root() . 'media/templates/administrator/atum/images/logos/brand-large.svg';
 		$find[] = Uri::getInstance()->root() . 'media/templates/administrator/atum/images/logos/brand-small.svg';
@@ -84,13 +76,13 @@ class Joomill extends CMSPlugin implements SubscriberInterface
 		$replace[] = '<a href="https://www.joomill.nl/contactgegevens" target="_blank" rel="noopener nofollow" title="Heb je een vraag?">Need help?</a>';
 
 		$body = str_replace($find, $replace, $body);
-		$this->app->setBody($body);
+		$this->getApplication()->setBody($body);
 	}
 
 	public function onContentPrepare(ContentPrepareEvent $event)
 	{
 		// Only for frontend
-		if (!$this->app->isClient('site'))
+		if (!$this->getApplication()->isClient('site'))
 		{
 			return;
 		}
@@ -100,27 +92,27 @@ class Joomill extends CMSPlugin implements SubscriberInterface
 		$currentDomain = $currentURL->toString(array('scheme', 'host'));
 		if (strpos($currentDomain, "joomill.dev") !== false)
 		{
-			$this->app->getDocument()->setMetaData('robots','noindex, nofollow');
+			$this->getApplication()->getDocument()->setMetaData('robots','noindex, nofollow');
 		}
 
 		// SET THEME COLOR
 		$themecolor = $this->params->get('themecolor', '#ffffff');
-		$this->app->getDocument()->setMetaData('theme-color', $themecolor);
+		$this->getApplication()->getDocument()->setMetaData('theme-color', $themecolor);
 
 		// SET HOMEPAGE PAGETITLE
-		$menu     = $this->app->getMenu();
-		$language = $this->app->getLanguage();
-		$siteName = $this->app->get('sitename');
+		$menu     = $this->getApplication()->getMenu();
+		$language = $this->getApplication()->getLanguage();
+		$siteName = $this->getApplication()->get('sitename');
 
 		if ($menu->getActive() == $menu->getDefault($language->getTag()))
 		{
 			if ($this->params->get('homepagetitle'))
 			{
-				$this->app->getDocument()->setTitle($this->params->get('homepagetitle'));
+				$this->getApplication()->getDocument()->setTitle($this->params->get('homepagetitle'));
 			}
 			else
 			{
-				$this->app->getDocument()->setTitle($siteName);
+				$this->getApplication()->getDocument()->setTitle($siteName);
 			}
 		}
 
@@ -128,6 +120,6 @@ class Joomill extends CMSPlugin implements SubscriberInterface
 		$link = Uri::getInstance()->toString();
 		$link = rtrim($link, '/');
 		$link = strtok($link, '?');
-		$this->app->getDocument()->addHeadLink($link, 'canonical');
+		$this->getApplication()->getDocument()->addHeadLink($link, 'canonical');
 	}
 }
