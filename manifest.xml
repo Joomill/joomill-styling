@@ -6,9 +6,9 @@
         <type>plugin</type>
         <folder>system</folder>
         <client>site</client>
-        <version>1.3.0</version>
+        <version>2.0.0</version>
         <downloads>
-            <downloadurl type="full" format="zip">https://github.com/Joomill/Joomill_Styling/archive/1.3.0.zip
+            <downloadurl type="full" format="zip">https://github.com/Joomill/Joomill_Styling/archive/2.0.0.zip
             </downloadurl>
         </downloads>
         <tags>
@@ -16,7 +16,7 @@
         </tags>
         <maintainer>Jeroen Moolenschot | Joomill</maintainer>
         <maintainerurl>https://www.joomill.nl</maintainerurl>
-        <targetplatform name="joomla" version="4|5"/>
+        <targetplatform name="joomla" version="5|6"/>
         <section>Updates</section>
     </update>
 </updates>
