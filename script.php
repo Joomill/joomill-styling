@@ -1,38 +1,68 @@
 <?php
 /*
  *  package: System - Joomill Styling plugin
- *  copyright: Copyright (c) 2025. Jeroen Moolenschot | Joomill
+ *  copyright: Copyright (c) 2026. Jeroen Moolenschot | Joomill
  *  license: GNU General Public License version 3 or later
  *  link: https://www.joomill.nl
  */
 
 // No direct access
-defined('_JEXEC') or die;
+\defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Installer\InstallerAdapter;
+use Joomla\CMS\Installer\InstallerScript;
 
-class plgSystemJoomillInstallerScript
+class plgSystemJoomillInstallerScript extends InstallerScript
 {
+	/**
+	 * Minimum Joomla version required to install the extension.
+	 *
+	 * @var  string
+	 */
+	protected $minimumJoomla = '5.0';
 
-	public function install($parent)
+	/**
+	 * Minimum PHP version required to install the extension.
+	 *
+	 * @var  string
+	 */
+	protected $minimumPhp = '8.1';
+
+	/**
+	 * Runs after install or update. Enables the plugin on a fresh install.
+	 *
+	 * @param   string            $type    The action being performed (install, update, discover_install).
+	 * @param   InstallerAdapter  $parent  The installer adapter.
+	 *
+	 * @return  boolean
+	 */
+	public function postflight($type, $parent)
 	{
-		// Enable the extension
-		$this->enablePlugin();
+		if ($type === 'install')
+		{
+			$this->enablePlugin();
+		}
 
 		return true;
 	}
 
+	/**
+	 * Enables the plugin in the #__extensions table.
+	 *
+	 * @return  void
+	 */
 	private function enablePlugin()
 	{
 		try
 		{
 			$db    = Factory::getContainer()->get('DatabaseDriver');
 			$query = $db->getQuery(true)
-				->update($db->qn('#__extensions'))
-				->set($db->qn('enabled') . ' = ' . $db->q(1))
-				->where('type = ' . $db->q('plugin'))
-				->where('folder = ' . $db->q('system'))
-				->where('element = ' . $db->q('joomill'));
+				->update($db->quoteName('#__extensions'))
+				->set($db->quoteName('enabled') . ' = ' . $db->quote(1))
+				->where($db->quoteName('type') . ' = ' . $db->quote('plugin'))
+				->where($db->quoteName('folder') . ' = ' . $db->quote('system'))
+				->where($db->quoteName('element') . ' = ' . $db->quote('joomill'));
 			$db->setQuery($query);
 			$db->execute();
 		}
