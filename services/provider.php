@@ -1,7 +1,7 @@
 <?php
 /*
  *  package: System - Joomill Styling plugin
- *  copyright: Copyright (c) 2025. Jeroen Moolenschot | Joomill
+ *  copyright: Copyright (c) 2026. Jeroen Moolenschot | Joomill
  *  license: GNU General Public License version 3 or later
  *  link: https://www.joomill.nl
  */
@@ -31,16 +31,16 @@ return new class () implements ServiceProviderInterface {
 	{
 		$container->set(
 			PluginInterface::class,
-			function (Container $container) {
-				$subject = $container->get(DispatcherInterface::class);
-				$plugin  = new Joomill(
-					$subject,
+			// Lazy loading (Joomla 6.1+): the plugin is only instantiated when needed.
+			$container->lazy(Joomill::class, function (Container $container): PluginInterface {
+				$plugin = new Joomill(
+					$container->get(DispatcherInterface::class),
 					(array) PluginHelper::getPlugin('system', 'joomill')
 				);
 				$plugin->setApplication(Factory::getApplication());
 
 				return $plugin;
-			}
+			})
 		);
 	}
 };
