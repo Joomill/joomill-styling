@@ -20,29 +20,29 @@ use Joomla\DI\ServiceProviderInterface;
 use Joomla\Event\DispatcherInterface;
 
 return new class () implements ServiceProviderInterface {
-	/**
-	 * Registers the service provider with a DI container.
-	 *
-	 * @param   Container  $container  The DI container.
-	 *
-	 * @return  void
-	 *
-	 * @since   4.3.0
-	 */
-	public function register(Container $container)
-	{
-		$container->set(
-			PluginInterface::class,
-			// Lazy loading (Joomla 6.1+): the plugin is only instantiated when needed.
-			$container->lazy(Joomill::class, function (Container $container): PluginInterface {
-				$plugin = new Joomill(
-					$container->get(DispatcherInterface::class),
-					(array) PluginHelper::getPlugin('system', 'joomill')
-				);
-				$plugin->setApplication(Factory::getApplication());
+    /**
+     * Registers the service provider with a DI container.
+     *
+     * @param   Container  $container  The DI container.
+     *
+     * @return  void
+     *
+     * @since   4.3.0
+     */
+    public function register(Container $container)
+    {
+        $container->set(
+            PluginInterface::class,
+            // Lazy loading (Joomla 6.1+): the plugin is only instantiated when needed.
+            $container->lazy(Joomill::class, function (Container $container): PluginInterface {
+                $plugin = new Joomill(
+                    $container->get(DispatcherInterface::class),
+                    (array) PluginHelper::getPlugin('system', 'joomill')
+                );
+                $plugin->setApplication(Factory::getApplication());
 
-				return $plugin;
-			})
-		);
-	}
+                return $plugin;
+            })
+        );
+    }
 };
