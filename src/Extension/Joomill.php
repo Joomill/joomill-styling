@@ -78,6 +78,18 @@ final class Joomill extends CMSPlugin implements SubscriberInterface
 
         // Canonical URL.
         $link = strtok(rtrim(Uri::getInstance()->toString(), '/'), '?');
+
+        // Document::$_links is keyed by URL, so adding the canonical would silently drop
+        // the self-referencing hreflang that the language filter registered on the same
+        // URL. Re-add it as a custom tag, the way the core plugin does for x-default.
+        if (isset($document->_links[$link]) && $document->_links[$link]['relation'] === 'alternate') {
+            $hreflang = $document->_links[$link]['attribs']['hreflang'] ?? '';
+
+            if ($hreflang !== '') {
+                $document->addCustomTag('<link href="' . $link . '" rel="alternate" hreflang="' . $hreflang . '">');
+            }
+        }
+
         $document->addHeadLink($link, 'canonical');
     }
 
