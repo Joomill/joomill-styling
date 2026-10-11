@@ -4,8 +4,8 @@
  * Joomill Styling
  *
  * @copyright   Copyright (c) 2026 Jeroen Moolenschot | Joomill
- * @license     GNU General Public License version 3 or later; see LICENSE
- * @link        https://www.joomill-extensions.com
+ * @license     GNU General Public License version 3 or later
+ * @link        https://www.joomill.nl
  */
 
 namespace Joomill\Plugin\System\Joomill\Extension;
@@ -76,8 +76,25 @@ final class Joomill extends CMSPlugin implements SubscriberInterface
             $document->setTitle($this->params->get('homepagetitle') ?: $app->get('sitename'));
         }
 
-        // Canonical URL.
-        $link = strtok(rtrim(Uri::getInstance()->toString(), '/'), '?');
+        // Canonical URL, unless a component (e.g. HikaShop) already added one.
+        foreach ($document->_links ?? [] as $headLink) {
+            if (($headLink['relation'] ?? '') === 'canonical') {
+                return;
+            }
+        }
+
+        $uri  = Uri::getInstance();
+        $link = rtrim($uri->toString(['scheme', 'host', 'port', 'path']), '/');
+
+        // Keep pagination, so page 2 and further are not canonicalised to page 1.
+        foreach (['start', 'limitstart'] as $var) {
+            $value = (int) $uri->getVar($var);
+
+            if ($value > 0) {
+                $link .= '?' . $var . '=' . $value;
+                break;
+            }
+        }
 
         // Document::$_links is keyed by URL, so adding the canonical would silently drop
         // the self-referencing hreflang that the language filter registered on the same
